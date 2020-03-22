@@ -13,7 +13,6 @@
 
   <!-- Dependencies -->
   <buildtool_depend>catkin</buildtool_depend>
-  <depend>gazebo_ros</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

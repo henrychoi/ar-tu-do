@@ -82,7 +82,7 @@ namespace car_config
      */
     constexpr double TRANSMISSION = 20;
 
-    constexpr double MAX_SERVO_POSITION = 1;
+    constexpr float MAX_SERVO_POSITION = 1.f;
 
     /**
      * @brief Conversion factor from electrical revolutions per minute to radian to seconds

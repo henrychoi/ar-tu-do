@@ -17,7 +17,7 @@ string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
 set(LIBS ${SDL2_LIBRARIES})
 
 ## Errors and Warnings
-set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wchar-subscripts -Wchkp -Wdouble-promotion -Wformat -Wnonnull -Wmain -Wswitch-bool -Winvalid-memory-model -Wunknown-pragmas -Warray-bounds -Wfloat-equal -Wlogical-op -Wpacked ")
+set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wchar-subscripts -Wchkp -Wformat -Wnonnull -Wmain -Wswitch-bool -Winvalid-memory-model -Wunknown-pragmas -Warray-bounds -Wfloat-equal -Wlogical-op -Wpacked ")
 # -Wpedantic cant be used because of ROS
 
 #########################
@@ -26,7 +26,6 @@ set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wchar-subscripts -Wchkp
 
 generate_dynamic_reconfigure_options(
   cfg/joystick_controller.cfg
-  cfg/keyboard_controller.cfg
 )
 
 ###################################
@@ -50,14 +49,11 @@ include_directories(
   ${SDL2_INCLUDE_DIR}
 )
 
+add_definitions("-Wno-sign-compare")
+add_definitions("-Wno-float-equal")
+
 # Declare joystick controller node executable
 add_executable(joystick_controller src/joystick_controller.cpp)
 target_link_libraries(joystick_controller ${LIBS} ${catkin_LIBRARIES})
 add_dependencies(joystick_controller ${${PROJECT_NAME}_EXPORTED_TARGETS}_gencfg)
 add_dependencies(joystick_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-# Declare remote keyboard node executable
-add_executable(keyboard_controller src/keyboard_controller.cpp)
-target_link_libraries(keyboard_controller ${LIBS} ${catkin_LIBRARIES})
-add_dependencies(keyboard_controller ${${PROJECT_NAME}_EXPORTED_TARGETS}_gencfg)
-add_dependencies(keyboard_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

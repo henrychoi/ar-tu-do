@@ -21,7 +21,7 @@ Further features are:
 
 - Automatic emergency braking
 - Dead Man's Switch
-- Teleoperation via keyboard, Xbox and Playstation controller
+- Teleoperation via Xbox and Playstation controller
 - Speedometer and Lap Timer
 
 

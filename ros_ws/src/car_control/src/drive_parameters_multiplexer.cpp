@@ -9,8 +9,6 @@ DriveParametersMultiplexer::DriveParametersMultiplexer()
         std::bind(&DriveParametersMultiplexer::onUpdate, this, std::placeholders::_1, std::placeholders::_2);
 
     this->m_sources = {
-        std::move(std::make_unique<DriveParametersSource>(&this->m_node_handle, TOPIC_DRIVE_PARAMETERS_KEYBOARD,
-                                                          callback, DriveMode::MANUAL, ros::Duration(0.1))),
         std::move(std::make_unique<DriveParametersSource>(&this->m_node_handle, TOPIC_DRIVE_PARAMETERS_JOYSTICK,
                                                           callback, DriveMode::MANUAL, ros::Duration(0.1))),
         std::move(std::make_unique<DriveParametersSource>(&this->m_node_handle, TOPIC_DRIVE_PARAMETERS_AUTONOMOUS,

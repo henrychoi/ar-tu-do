@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-    <arg name="joystick_type" default="ps3"/>
+    <arg name="joystick_type" default="nint"/>
 
     <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find racer_description)/urdf/racer.xacro'"/>
 
@@ -10,23 +10,13 @@
         <arg name="joystick_type" value="$(arg joystick_type)"/>
     </include>
 
-    <include file="$(find emergency_stop)/launch/emergency_stop.launch"/>
-
     <include file="$(find vesc_driver)/launch/vesc_driver_node.launch"/>
 
     <rosparam command="load" file="$(find vesc_sim)/config/car_config.yaml"/>
 
     <include file="$(find vesc_ackermann)/launch/vesc_to_odom_node.launch"/>
 
-    <include file="$(find evolutionary)/launch/autonomous_driving.launch"/>
-
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
 
     <include file="$(find hardware)/launch/static_wheel_publisher.launch"/>
-
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find car_control)/launch/car.rviz"/>
-
-    <node pkg="urg_node" type="urg_node" name="urg_node">
-        <param name="ip_address" value="192.168.1.10"/>
-    </node>
 </launch>

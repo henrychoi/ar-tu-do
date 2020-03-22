@@ -17,5 +17,4 @@
   <!-- Dependencies -->
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>razor_imu_9dof</depend>
 </package>

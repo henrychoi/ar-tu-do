@@ -9,7 +9,6 @@
 #include <vector>
 
 constexpr const char* TOPIC_DRIVE_PARAM = "/commands/drive_param";
-constexpr const char* TOPIC_DRIVE_PARAMETERS_KEYBOARD = "input/drive_param/keyboard";
 constexpr const char* TOPIC_DRIVE_PARAMETERS_JOYSTICK = "input/drive_param/joystick";
 constexpr const char* TOPIC_DRIVE_PARAMETERS_AUTONOMOUS = "input/drive_param/autonomous";
 constexpr const char* TOPIC_DRIVE_MODE = "/commands/drive_mode";

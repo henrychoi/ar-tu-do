@@ -55,7 +55,7 @@ class CarController
     /**
      * @brief takes a speed and angle, converts and forwards them to gazebo/focbox
      */
-    void publishDriveParameters(double raw_speed, double raw_angle);
+    void publishDriveParameters(double raw_speed, float front, float back);
 
     /**
      * @brief takes speed and publishes it to gazebo/focbox
@@ -63,9 +63,9 @@ class CarController
     void publishSpeed(double speed);
 
     /**
-     * @brief takes angle and publishes it to gazebo/focbox
+     * @brief takes servo angles and publishes it to gazebo/focbox
      */
-    void publishAngle(double angle);
+    void publishAngle(float front, float back);
 
     /**
      * @brief publishes a brake message that stops the car
