@@ -43,10 +43,6 @@ VescDriver::VescDriver(ros::NodeHandle nh,
   // create vesc state (telemetry) publisher
   state_pub_ = nh.advertise<vesc_msgs::VescStateStamped>("sensors/core", 10);
 
-  // since vesc state does not include the servo position, publish the commanded
-  // servo position as a "sensor"
-  servo_sensor_pub_ = nh.advertise<std_msgs::Float32MultiArray>("sensors/servo_position_command", 10);
-
   // subscribe to motor and servo command topics
   duty_cycle_sub_ = nh.subscribe("commands/motor/duty_cycle", 10,
                                  &VescDriver::dutyCycleCallback, this);
@@ -213,17 +209,9 @@ void VescDriver::positionCallback(const std_msgs::Float64::ConstPtr& position)
 void VescDriver::servoCallback(const std_msgs::Float32MultiArray::ConstPtr& servo)
 {
   if (driver_mode_ = MODE_OPERATING) {
-    float servos[2] = {
-	static_cast<float>(servo_limit_.clip(servo->data[0])),
-	static_cast<float>(servo_limit_.clip(servo->data[1]))
-    };
-    vesc_.setServo(servos[0], servos[1]); // send to VESC HW
-
-    std_msgs::Float32MultiArray servo_clipped;
-    // publish clipped servo value as a "sensor"
-    servo_clipped.data.push_back(servos[0]);
-    servo_clipped.data.push_back(servos[1]);
-    servo_sensor_pub_.publish(servo_clipped);
+    servo_duty_[0] = static_cast<float>(servo_limit_.clip(servo->data[0]));
+    servo_duty_[1] = static_cast<float>(servo_limit_.clip(servo->data[1]));
+    vesc_.setServo(servo_duty_[0], servo_duty_[1]); // send to VESC HW
   }
 }
 
@@ -293,12 +281,12 @@ VescDriver::CommandLimit::CommandLimit(const ros::NodeHandle& nh, const std::str
 double VescDriver::CommandLimit::clip(double value)
 {
   if (lower && value < lower) {
-    ROS_INFO_THROTTLE(10, "%s command value (%f) below minimum limit (%f), clipping.",
+    ROS_DEBUG_THROTTLE(10, "%s command value (%f) below minimum limit (%f), clipping.",
                       name.c_str(), value, *lower);
     return *lower;
   }
   if (upper && value > upper) {
-    ROS_INFO_THROTTLE(10, "%s command value (%f) above maximum limit (%f), clipping.",
+    ROS_DEBUG_THROTTLE(10, "%s command value (%f) above maximum limit (%f), clipping.",
                       name.c_str(), value, *upper);
     return *upper;
   }

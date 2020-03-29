@@ -26,24 +26,21 @@ private:
   bool use_servo_cmd_;
   // conversion gain and offset
   double speed_to_erpm_gain_, speed_to_erpm_offset_;
-  double steering_to_servo_gain_, steering_to_servo_offset_;
+  double steering_to_servo_gain_[2], steering_to_servo_offset_[2];
   double wheelbase_;
   bool publish_tf_;
 
   // odometry state
   double x_, y_, yaw_;
-  std_msgs::Float32MultiArray::ConstPtr last_servo_cmd_; ///< Last servo position commanded value
   vesc_msgs::VescStateStamped::ConstPtr last_state_; ///< Last received state message
 
   // ROS services
   ros::Publisher odom_pub_;
   ros::Subscriber vesc_state_sub_;
-  ros::Subscriber servo_sub_;
   boost::shared_ptr<tf::TransformBroadcaster> tf_pub_;
 
   // ROS callbacks
   void vescStateCallback(const vesc_msgs::VescStateStamped::ConstPtr& state);
-  void servoCmdCallback(const std_msgs::Float32MultiArray::ConstPtr& servos);
 };
 
 } // namespace vesc_ackermann

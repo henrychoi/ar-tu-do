@@ -49,7 +49,6 @@ private:
 
   // ROS services
   ros::Publisher state_pub_;
-  ros::Publisher servo_sensor_pub_;
   ros::Subscriber duty_cycle_sub_;
   ros::Subscriber current_sub_;
   ros::Subscriber brake_sub_;
@@ -68,6 +67,8 @@ private:
   driver_mode_t driver_mode_;           ///< driver state machine mode (state)
   int fw_version_major_;                ///< firmware major version reported by vesc
   int fw_version_minor_;                ///< firmware minor version reported by vesc
+
+  float servo_duty_[2] = {0.5f, 0.5f};
 
   // ROS callbacks
   void timerCallback(const ros::TimerEvent& event);

@@ -49,7 +49,12 @@ void* VescInterface::Impl::rxThread(void)
 
     int bytes_needed = VescFrame::VESC_MIN_FRAME_SIZE;
     if (!buffer.empty()) {
-
+ #if 0
+      for (auto i=0; i < buffer.size(); ++i) {
+        printf("%02x ", buffer[i]);
+      }
+      printf("\n");
+#endif
       // search buffer for valid packet(s)
       Buffer::iterator iter(buffer.begin());
       Buffer::iterator iter_begin(buffer.begin());
@@ -66,10 +71,12 @@ void* VescInterface::Impl::rxThread(void)
           if (packet) {
             // good packet, check if we skipped any data
             if (std::distance(iter_begin, iter) > 0) {
-              std::ostringstream ss;
-              ss << "Out-of-sync with VESC, unknown data leading valid frame. Discarding "
-                 << std::distance(iter_begin, iter) << " bytes.";
-              error_handler_(ss.str());
+	      std::ostringstream ss;
+	      ss << "Out-of-sync with VESC, unknown data leading valid frame. Discarding "
+	         << std::distance(iter_begin, iter) << " bytes.";
+	      error_handler_(ss.str());
+	      //printf("Out-of-sync with VESC, unknown data leading valid frame. Discarding %zd\n",
+	      //std::distance(iter_begin, iter));
             }
             // call packet handler
             packet_handler_(packet);
@@ -208,11 +215,13 @@ void VescInterface::requestFWVersion()
 
 void VescInterface::requestState()
 {
+//printf("requestState\n");
   send(VescPacketRequestValues());
 }
 
 void VescInterface::setDutyCycle(double duty_cycle)
 {
+  printf("setDutyCycle");
   send(VescPacketSetDuty(duty_cycle));
 }
 

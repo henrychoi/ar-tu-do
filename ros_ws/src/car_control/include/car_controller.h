@@ -10,20 +10,13 @@
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int32.h>
 
-constexpr const char* TOPIC_FOCBOX_SPEED = "/commands/motor/speed";
-constexpr const char* TOPIC_FOCBOX_ANGLE = "/commands/servo/position";
-constexpr const char* TOPIC_FOCBOX_BRAKE = "commands/motor/brake";
-constexpr const char* TOPIC_DRIVE_PARAM = "/commands/drive_param";
-constexpr const char* TOPIC_DRIVE_MODE = "/commands/drive_mode";
-constexpr const char* TOPIC_EMERGENCY_STOP = "/commands/emergency_stop";
-
 class CarController
 {
-    public:
-    CarController();
+public:
+    CarController(ros::NodeHandle nh, ros::NodeHandle private_nh);
 
-    private:
-    ros::NodeHandle m_node_handle;
+private:
+//ros::NodeHandle m_node_handle;
 
     ros::Subscriber m_drive_parameters_subscriber;
     ros::Subscriber m_drive_mode_subscriber;
@@ -33,8 +26,11 @@ class CarController
     ros::Publisher m_angle_publisher;
     ros::Publisher m_brake_publisher;
 
-    bool m_drive_param_lock;
-    bool m_emergency_stop_lock;
+//MARK: parameters read from YAML?
+    float speed_to_erpm_gain_;
+    float steering_to_servo_gain_[2], steering_to_servo_offset_[2];
+    bool m_drive_param_lock = true;
+    bool m_emergency_stop_lock = true;
     DriveMode m_current_drive_mode;
 
     /**

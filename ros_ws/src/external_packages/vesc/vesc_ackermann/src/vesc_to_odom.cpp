@@ -11,7 +11,14 @@ namespace vesc_ackermann
 {
 
 template <typename T>
-inline bool getRequiredParam(const ros::NodeHandle& nh, std::string name, T& value);
+inline bool getRequiredParam(const ros::NodeHandle& nh, std::string name, T& value)
+{
+  if (nh.getParam(name, value))
+    return true;
+
+  ROS_FATAL("Parameter %s is required.", name.c_str());
+  return false;
+}
 
 VescToOdom::VescToOdom(ros::NodeHandle nh, ros::NodeHandle private_nh) :
   odom_frame_("odom"), base_frame_("base_link"),
@@ -26,9 +33,13 @@ VescToOdom::VescToOdom(ros::NodeHandle nh, ros::NodeHandle private_nh) :
   if (!getRequiredParam(nh, "speed_to_erpm_offset", speed_to_erpm_offset_))
     return;
   if (use_servo_cmd_) {
-    if (!getRequiredParam(nh, "steering_angle_to_servo_gain", steering_to_servo_gain_))
+    if (!getRequiredParam(nh, "steering_angle_to_servo0_gain", steering_to_servo_gain_[0]))
       return;
-    if (!getRequiredParam(nh, "steering_angle_to_servo_offset", steering_to_servo_offset_))
+    if (!getRequiredParam(nh, "steering_angle_to_servo0_offset", steering_to_servo_offset_[0]))
+      return;
+    if (!getRequiredParam(nh, "steering_angle_to_servo1_gain", steering_to_servo_gain_[1]))
+      return;
+    if (!getRequiredParam(nh, "steering_angle_to_servo1_offset", steering_to_servo_offset_[1]))
       return;
     if (!getRequiredParam(nh, "wheelbase", wheelbase_))
       return;
@@ -45,26 +56,21 @@ VescToOdom::VescToOdom(ros::NodeHandle nh, ros::NodeHandle private_nh) :
 
   // subscribe to vesc state and. optionally, servo command
   vesc_state_sub_ = nh.subscribe("sensors/core", 10, &VescToOdom::vescStateCallback, this);
-  if (use_servo_cmd_) {
-    servo_sub_ = nh.subscribe("sensors/servo_position_command", 10,
-                              &VescToOdom::servoCmdCallback, this);
-  }
 }
 
 void VescToOdom::vescStateCallback(const vesc_msgs::VescStateStamped::ConstPtr& state)
 {
-  // check that we have a last servo command if we are depending on it for angular velocity
-  if (use_servo_cmd_ && !last_servo_cmd_)
-    return;
-
   // convert to engineering units
   double current_speed = ( state->state.speed - speed_to_erpm_offset_ ) / speed_to_erpm_gain_;
-  double current_steering_angle(0.0), current_angular_velocity(0.0);
+  double current_steering_angle[2] = {0,0}
+    , current_angular_velocity(0.0);
   if (use_servo_cmd_) {
-    current_steering_angle =
-      ( last_servo_cmd_->data[0] - steering_to_servo_offset_ ) / steering_to_servo_gain_;
+    current_steering_angle[0] = (state->state.front_steer - steering_to_servo_offset_[0])
+      / steering_to_servo_gain_[0];
+    current_steering_angle[1] = (state->state.back_steer - steering_to_servo_offset_[1])
+      / steering_to_servo_gain_[1];
     //FIXME: use the rear servo value
-    current_angular_velocity = current_speed * tan(current_steering_angle) / wheelbase_;
+    current_angular_velocity = current_speed * tan(current_steering_angle[0]) / wheelbase_;
   }
 
   // use current state as last state if this is our first time here
@@ -132,21 +138,6 @@ void VescToOdom::vescStateCallback(const vesc_msgs::VescStateStamped::ConstPtr& 
   if (ros::ok()) {
     odom_pub_.publish(odom);
   }
-}
-
-void VescToOdom::servoCmdCallback(const std_msgs::Float32MultiArray::ConstPtr& servos)
-{
-  last_servo_cmd_ = servos;
-}
-
-template <typename T>
-inline bool getRequiredParam(const ros::NodeHandle& nh, std::string name, T& value)
-{
-  if (nh.getParam(name, value))
-    return true;
-
-  ROS_FATAL("VescToOdom: Parameter %s is required.", name.c_str());
-  return false;
 }
 
 } // namespace vesc_ackermann

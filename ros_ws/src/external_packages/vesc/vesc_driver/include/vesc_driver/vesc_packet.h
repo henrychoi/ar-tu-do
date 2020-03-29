@@ -65,6 +65,8 @@ public:
   virtual const std::string& name() const {return name_;}
 
 protected:
+  // @param payload_size A misnomer, since it contains the data type (1 byte) + real payload size,
+  //        for which you should consult the VESC bldc repo commands.c
   VescPacket(const std::string& name, int payload_size, int payload_id);
   VescPacket(const std::string& name, boost::shared_ptr<VescFrame> raw);
 
@@ -102,12 +104,6 @@ public:
   VescPacketValues(boost::shared_ptr<VescFrame> raw);
 
   double v_in() const;
-  double temp_mos1() const;
-  double temp_mos2() const;
-  double temp_mos3() const;
-  double temp_mos4() const;
-  double temp_mos5() const;
-  double temp_mos6() const;
   double temp_pcb() const;
   double current_motor() const;
   double current_in() const;

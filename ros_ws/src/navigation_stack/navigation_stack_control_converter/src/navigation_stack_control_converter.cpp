@@ -43,7 +43,7 @@ void NavigationStackControlConverter::convertCallback(const geometry_msgs::Twist
     servo_data = boost::algorithm::clamp(servo_data, 0.0, 1.0);
 
     drive_msgs::drive_param control_message;
-    control_message.velocity = erpm_speed / car_config::MAX_RPM_ELECTRICAL; // convert from min-max erpm to (-1)-1
+    control_message.velocity = erpm_speed * car_config::ERPM_TO_SPEED; // convert from min-max erpm to (-1)-1
     control_message.angle = (servo_data * 2 - car_config::MAX_SERVO_POSITION) /
         car_config::MAX_SERVO_POSITION; // convert from 0-1 to (-1)-1
     m_drive_param_publisher.publish(control_message);

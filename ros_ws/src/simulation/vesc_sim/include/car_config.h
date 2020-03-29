@@ -14,7 +14,7 @@ namespace car_config
      */
     constexpr double WHEELBASE = 0.325;
 
-    constexpr double WHEEL_DIAMETER = 0.098;
+    constexpr double WHEEL_DIAMETER = 0.062;
 
     constexpr double WHEEL_WIDTH = 0.042;
 
@@ -35,13 +35,7 @@ namespace car_config
     /**
      * @brief Number of electrical motor poles
      */
-    constexpr double MOTOR_POLES = 3;
-
-    /**
-     * @brief Maximum electrical revolutions per minute for use in the VESC
-     * @unit 1/min
-     */
-    constexpr double MAX_RPM_ELECTRICAL = MAX_RPM_MECHANICAL / MOTOR_POLES;
+    constexpr double MOTOR_POLES = 4;
 
     /**
      * @brief Conversion factor from electrical revolutions per minute to meters per second
