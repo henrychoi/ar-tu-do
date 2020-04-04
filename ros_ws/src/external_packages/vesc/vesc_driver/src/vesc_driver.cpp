@@ -11,6 +11,15 @@
 
 namespace vesc_driver
 {
+template <typename T>
+inline bool getRequiredParam(const ros::NodeHandle& nh, std::string name, T& value)
+{
+  if (nh.getParam(name, value))
+    return true;
+
+  ROS_FATAL("Parameter %s is required.", name.c_str());
+  return false;
+}
 
 VescDriver::VescDriver(ros::NodeHandle nh,
                        ros::NodeHandle private_nh) :
@@ -22,6 +31,13 @@ VescDriver::VescDriver(ros::NodeHandle nh,
   position_limit_(private_nh, "position"), servo_limit_(private_nh, "servo", 0.0, 1.0),
   driver_mode_(MODE_INITIALIZING), fw_version_major_(-1), fw_version_minor_(-1)
 {
+  if (!getRequiredParam(nh, "brake", brake_))
+    return;
+  if (!getRequiredParam(nh, "acceleration", accel_))
+    return;
+  if (!getRequiredParam(nh, "deceleration", decel_))
+    return;
+
   // get vesc serial port address
   std::string port;
   if (!private_nh.getParam("port", port)) {
@@ -94,8 +110,30 @@ void VescDriver::timerCallback(const ros::TimerEvent& event)
     }
   }
   else if (driver_mode_ == MODE_OPERATING) {
-    // poll for vesc state (telemetry)
-    vesc_.requestState();
+    vesc_.requestState();// poll for vesc state (telemetry)
+
+    // simple trajectory generation; adjust the r (reference) smoothly,
+    // considering the the current goal
+    if (speed_goal_ >= 0) {
+      if (speed_r_ < 0) { // going the wrong way; decelerate quickly (use brake)
+        adjust_speed_r(decel_ + brake_);
+      } else if (speed_r_ > speed_goal_) {
+        // headed the right way, but too fast; decelerate slowly (don't use brake)
+        adjust_speed_r(-decel_);
+      } else { // headed the right way, but have to catch up to goal
+        adjust_speed_r(decel_);
+      }
+    } else { // note the symmetry with the above
+      if (speed_r_ > 0) { // going the wrong way; decelerate quickly (use brake)
+        adjust_speed_r(-(decel_ + brake_));
+      } else if (speed_r_ < speed_goal_) {
+        // headed the right way, but too fast; decelerate slowly (don't use brake)
+        adjust_speed_r(decel_);
+      } else { // headed the right way, but have to catch up to goal
+        adjust_speed_r(-decel_);
+      }
+    }
+    vesc_.setSpeed(speed_r_);
   }
   else {
     // unknown mode, how did that happen?
@@ -124,6 +162,10 @@ void VescDriver::vescPacketCallback(const boost::shared_ptr<VescPacket const>& p
     state_msg->state.displacement = values->tachometer();
     state_msg->state.distance_traveled = values->tachometer_abs();
     state_msg->state.fault_code = values->fault_code();
+
+    // Just publish the latest servo duty received from the car controller
+    state_msg->state.front_duty = servo_duty_[0];
+    state_msg->state.back_duty = servo_duty_[1];
 
     state_pub_.publish(state_msg);
   }
@@ -186,7 +228,7 @@ void VescDriver::brakeCallback(const std_msgs::Float64::ConstPtr& brake)
 void VescDriver::speedCallback(const std_msgs::Float64::ConstPtr& speed)
 {
   if (driver_mode_ = MODE_OPERATING) {
-    vesc_.setSpeed(speed_limit_.clip(speed->data));
+    speed_goal_ = static_cast<float>(speed_limit_.clip(speed->data));
   }
 }
 

@@ -65,9 +65,9 @@ void VescToOdom::vescStateCallback(const vesc_msgs::VescStateStamped::ConstPtr& 
   double current_steering_angle[2] = {0,0}
     , current_angular_velocity(0.0);
   if (use_servo_cmd_) {
-    current_steering_angle[0] = (state->state.front_steer - steering_to_servo_offset_[0])
+    current_steering_angle[0] = (state->state.front_duty - steering_to_servo_offset_[0])
       / steering_to_servo_gain_[0];
-    current_steering_angle[1] = (state->state.back_steer - steering_to_servo_offset_[1])
+    current_steering_angle[1] = (state->state.back_duty - steering_to_servo_offset_[1])
       / steering_to_servo_gain_[1];
     //FIXME: use the rear servo value
     current_angular_velocity = current_speed * tan(current_steering_angle[0]) / wheelbase_;

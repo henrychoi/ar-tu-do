@@ -69,7 +69,20 @@ private:
   int fw_version_minor_;                ///< firmware minor version reported by vesc
 
   float servo_duty_[2] = {0.5f, 0.5f};
-
+  float speed_goal_ = 0 // [eRPM] target set from high level
+    // (e.g. manual, navigation); may change in a step manner
+    , speed_r_ = 0 // [eRPM] low level target, for short time horizon smooth speed
+    , brake_ // [eRPM / timer_period]; > 0
+    , accel_ // [eRPM / timer_period]; > 0
+    , decel_ // [eRPM / timer_period]; > 0
+    ;
+  inline void adjust_speed_r(float adj) {
+    if (fabs(speed_goal_ - speed_r_) < fabs(adj)) {
+      speed_r_ = speed_goal_;
+    } else {
+      speed_r_ += adj;
+    }
+  }
   // ROS callbacks
   void timerCallback(const ros::TimerEvent& event);
   void dutyCycleCallback(const std_msgs::Float64::ConstPtr& duty_cycle);

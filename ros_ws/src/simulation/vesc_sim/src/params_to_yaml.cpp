@@ -10,7 +10,12 @@ int main(int argc, char** argv)
     node["speed_to_erpm_offset"] = 0;
     node["steering_angle_to_servo0_gain"] = 0.5;
     node["steering_angle_to_servo0_offset"] = 0.5;
+    node["steering_angle_to_servo1_gain"] = 0.5;
+    node["steering_angle_to_servo1_offset"] = 0.5;
     node["wheelbase"] = car_config::WHEELBASE;
+    node["brake"] = 10;
+    node["acceleration"] = 5;
+    node["deceleration"] = 10;
 
     std::string package_path = ros::package::getPath("vesc_sim");
     std::ofstream fout(package_path + "/config/car_config.yaml");

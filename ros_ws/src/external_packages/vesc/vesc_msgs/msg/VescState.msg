@@ -24,5 +24,5 @@ float64 distance_traveled    # total tachnometer (counts)
 int32   fault_code
 
 # Added to simplify the system architecture
-float32 front_steer # []
-float32 back_steer # []
+float32 front_duty # []
+float32 back_duty # []
