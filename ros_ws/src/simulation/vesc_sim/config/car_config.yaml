@@ -1,4 +1,4 @@
-speed_to_erpm_gain: 1000
+speed_to_erpm_gain: 10000
 speed_to_erpm_offset: 0
 steering_angle_to_servo0_gain: 0.5
 steering_angle_to_servo0_offset: 0.4
